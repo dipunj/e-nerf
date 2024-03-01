@@ -1,0 +1,15 @@
+__pycache__/
+TUMVIEDATA/
+build/
+*.egg-info/
+*.so
+
+tmp*
+data/
+trial*/
+.vs/
+
+volsdf/
+**volsdf*
+tensorf/
+**tensorf*
