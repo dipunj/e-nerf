@@ -196,7 +196,7 @@ if __name__ == '__main__':
         if opt.gui:
             # gui = NeRFGUI(opt, trainer)
             # gui.render()
-        
+            pass
         else:
             test_loader = NeRFDataset(opt, device=device, type='test', select_frames=select_frames).dataloader()
             if opt.mode == 'blender':
