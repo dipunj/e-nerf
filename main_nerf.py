@@ -3,7 +3,7 @@ import torch
 import configargparse
 
 from nerf.provider import NeRFDataset, EventNeRFDataset
-from nerf.gui import NeRFGUI
+# from nerf.gui import NeRFGUI
 from nerf.utils import *
 
 from functools import partial
@@ -194,8 +194,8 @@ if __name__ == '__main__':
         trainer = Trainer(opt.expname, opt, model, device=device, criterion=criterion, fp16=opt.fp16, metrics=[PSNRMeter(opt, select_frames)], use_checkpoint=opt.ckpt)
 
         if opt.gui:
-            gui = NeRFGUI(opt, trainer)
-            gui.render()
+            # gui = NeRFGUI(opt, trainer)
+            # gui.render()
         
         else:
             test_loader = NeRFDataset(opt, device=device, type='test', select_frames=select_frames).dataloader()
@@ -217,8 +217,8 @@ if __name__ == '__main__':
             train_loader = NeRFDataset(opt, device=device, type='train', select_frames=select_frames).dataloader()
             trainer.train_loader = train_loader # attach dataloader to trainer
 
-            gui = NeRFGUI(opt, trainer)
-            gui.render()
+            # gui = NeRFGUI(opt, trainer)
+            # gui.render()
         else:
             if opt.events:
                 train_loader = EventNeRFDataset(opt, device=device, type='train', downscale=opt.downscale, select_frames=select_frames).dataloader()
