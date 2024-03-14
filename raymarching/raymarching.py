@@ -332,6 +332,7 @@ class _march_rays(Function):
 
         _backend.march_rays(n_alive, n_step, rays_alive, rays_t, rays_o, rays_d, bound, dt_gamma, max_steps, C, H, density_bitfield, near, far, xyzs, dirs, deltas, perturb)
 
+        print("XY##", xyzs, dirs, deltas)
         return xyzs, dirs, deltas
 
 march_rays = _march_rays.apply
