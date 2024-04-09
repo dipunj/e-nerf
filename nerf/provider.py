@@ -21,6 +21,9 @@ import json
 import matplotlib
 matplotlib.use('Agg')
 
+import pdb
+
+
 #####################
 # Loading esim 
 #####################
@@ -1404,7 +1407,28 @@ class EventNeRFDataset(NGPDataset):
             eidx = (np.random.rand(num_evs_xy.shape[0]) * num_evs_xy - 1).astype(int) + self.xy_numEvs_Idx[fidx][:, 1]
             eidx = np.random.choice(eidx, size=self.batch_size_evs, replace=self.batch_size_evs>len(eidx))
             eidx_end = eidx + 1 # take direct successor event by default
-            pols = self.events[fidx][eidx+1, 3].unsqueeze(0)
+
+            # Window sampling strategy using window size = 60ms, therefore we pick the eidx_end as the event that falls just short of 30ms
+            # START: comment this block to disable window based logic
+            window_size = 30
+            for i in range(len(eidx_end)):
+                start_idx = eidx[i]
+                start_ev = self.events[fidx][start_idx]
+                max_idx = len(self.events[fidx])
+                end_idx = eidx_end[i]
+
+                while (end_idx < max_idx
+                       and start_ev[0] == self.events[fidx][end_idx][0]
+                       and start_ev[1] == self.events[fidx][end_idx][1]
+                       and (self.events[fidx][end_idx][2] - start_ev[2]).item() / 10e6 <= window_size):
+                    end_idx += 1
+
+                eidx_end[i] = end_idx - 1
+            # END
+
+            print("SUCESSSSSSSSS")
+
+            pols = self.events[fidx][eidx_end, 3].unsqueeze(0)
 
         xs = self.events[fidx][eidx, 0].unsqueeze(0) # (1, M)
         ys = self.events[fidx][eidx, 1].unsqueeze(0) # (1, M)
