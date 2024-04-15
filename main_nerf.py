@@ -8,6 +8,7 @@ from nerf.utils import *
 
 from functools import partial
 from loss import huber_loss
+import timeit
 # [debug] enable for debugging (slow!)
 # torch.autograd.set_detect_anomaly(True)
 
@@ -93,7 +94,9 @@ def assert_config(opt):
 
 
 if __name__ == '__main__':
-    parser = configargparse.ArgumentParser() 
+    start_time = timeit.default_timer()
+
+    parser = configargparse.ArgumentParser()
     # Dataset and Logging Options
     parser.add_argument(
         "--config",                                      
@@ -256,3 +259,7 @@ if __name__ == '__main__':
             trainer.test(test_loader) # colmap doesn't have gt, so just test.
     
             trainer.save_mesh(resolution=256, threshold=10)
+
+    end_time = timeit.default_timer()
+    execution_time = end_time - start_time
+    print("Execution time:", execution_time, "seconds")
