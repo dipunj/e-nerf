@@ -307,7 +307,8 @@ class Trainer(object):
                  report_metric_at_train=False, # also report metrics at training
                  use_checkpoint="latest", # which ckpt to use at init time
                  use_tensorboardX=True, # whether to use tensorboard for logging
-                 scheduler_update_every_step=False, # whether to call scheduler.step() after every train step 
+                 scheduler_update_every_step=False, # whether to call scheduler.step() after every train step
+                 patience=-1, # used for early stopping
                  ):
         
         self.name = name
@@ -344,6 +345,8 @@ class Trainer(object):
         self.weight_loss_rgb = opt.weight_loss_rgb
         self.w_no_ev = opt.w_no_ev
         self.linlog = opt.linlog
+        self.patience = patience
+
         if not self.linlog:
             self.log_thres = torch.Tensor([0.0000001]).to(self.device)
 
@@ -740,20 +743,33 @@ class Trainer(object):
 
         # get a ref to error_map
         self.error_map = train_loader._data.error_map
-        
-        dt_eps = 0
-        dt_logeps = 0
+
+        best_val_loss = float('inf') # the least loss value we got so far
+        epochs_since_best = 0
         for epoch in range(self.epoch, max_epochs + 1):
             self.epoch = epoch
-            
+
             self.train_one_epoch(train_loader)
 
             if self.workspace is not None and self.local_rank == 0:
                 self.save_checkpoint(full=True, best=False)
 
+            # Validate the model after each epoch
+            if epoch % self.eval_interval == 0:
+                val_loss = self.evaluate_one_epoch(valid_loader)
 
-            if self.epoch % self.eval_interval == 0:
-                self.evaluate_one_epoch(valid_loader)
+                # if validation loss is better than the loss seen so far
+                # update the best values.
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    epochs_since_best = 0
+                else:
+                    epochs_since_best += 1
+
+                # Check for early stopping
+                if epochs_since_best >= self.patience:
+                    print("STOPPING EARLY!! Validation loss hasn't improved for {} epochs.".format(self.patience))
+                    break
                 self.save_checkpoint(full=False, best=True)
 
         if self.use_tensorboardX and self.local_rank == 0:

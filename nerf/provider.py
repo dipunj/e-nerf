@@ -1404,13 +1404,16 @@ class EventNeRFDataset(NGPDataset):
             eidx_end = np.asarray(eidx_end) # (M,)
         else:
             num_evs_xy = self.xy_numEvs_Idx[fidx][:, 0]
-            eidx = (np.random.rand(num_evs_xy.shape[0]) * num_evs_xy - 1).astype(int) + self.xy_numEvs_Idx[fidx][:, 1]
+            event_ids = self.xy_numEvs_Idx[fidx][:, 1]
+            eidx = event_ids + (np.random.rand(num_evs_xy.shape[0]) * num_evs_xy - 1).astype(int)
             eidx = np.random.choice(eidx, size=self.batch_size_evs, replace=self.batch_size_evs>len(eidx))
+
+            # DEFAULT sampling strategy
             eidx_end = eidx + 1 # take direct successor event by default
 
-            # Window sampling strategy using window size = 60ms, therefore we pick the eidx_end as the event that falls just short of 30ms
+            # Window sampling strategy using window size = 60ms
             # START: comment this block to disable window based logic
-            window_size = 30
+            window_size = 60
             for i in range(len(eidx_end)):
                 start_idx = eidx[i]
                 start_ev = self.events[fidx][start_idx]
@@ -1425,7 +1428,6 @@ class EventNeRFDataset(NGPDataset):
 
                 eidx_end[i] = end_idx - 1
             # END
-
             print("SUCESSSSSSSSS")
 
             pols = self.events[fidx][eidx_end, 3].unsqueeze(0)

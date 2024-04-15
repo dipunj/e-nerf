@@ -33,7 +33,7 @@ def main():
     if not os.path.exists(imgdirout):
         os.makedirs(imgdirout)
 
-    img_list = [os.path.join(args.indir, imgdir, im) for im in sorted(os.listdir(imgdir)) if im.endswith(".jpg")]
+    img_list = [os.path.join(imgdir, im) for im in sorted(os.listdir(imgdir)) if im.endswith(".jpg")]
     if len(img_list) == 0:
         img_list = [os.path.join(args.indir, imgdir, im) for im in sorted(os.listdir(imgdir)) if im.endswith(".png")]
     H, W, _ = cv2.imread(img_list[0]).shape

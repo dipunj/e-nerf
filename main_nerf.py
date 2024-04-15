@@ -191,7 +191,16 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if opt.test:
-        trainer = Trainer(opt.expname, opt, model, device=device, criterion=criterion, fp16=opt.fp16, metrics=[PSNRMeter(opt, select_frames)], use_checkpoint=opt.ckpt)
+        trainer = Trainer(
+            opt.expname,
+            opt,
+            model,
+            device=device,
+            criterion=criterion,
+            fp16=opt.fp16,
+            metrics=[PSNRMeter(opt, select_frames)],
+            use_checkpoint=opt.ckpt
+        )
 
         if opt.gui:
             # gui = NeRFGUI(opt, trainer)
@@ -210,7 +219,19 @@ if __name__ == '__main__':
         optimizer = lambda model: torch.optim.Adam(model.get_params(opt.lr), betas=(0.9, 0.99), eps=1e-15)
         scheduler = lambda optimizer: optim.lr_scheduler.LambdaLR(optimizer, lambda iter: 0.1 ** min(iter / opt.iters, 1))
 
-        trainer = Trainer(opt.expname, opt, model, device=device, optimizer=optimizer, criterion=criterion, ema_decay=0.95, fp16=opt.fp16, lr_scheduler=scheduler, scheduler_update_every_step=True, metrics=[PSNRMeter(opt, select_frames)], use_checkpoint=opt.ckpt)
+        trainer = Trainer(opt.expname,
+                          opt,
+                          model,
+                          device=device,
+                          optimizer=optimizer,
+                          criterion=criterion,
+                          ema_decay=0.95,
+                          fp16=opt.fp16,
+                          lr_scheduler=scheduler,
+                          scheduler_update_every_step=True,
+                          metrics=[PSNRMeter(opt, select_frames)],
+                          use_checkpoint=opt.ckpt,
+                          patience=5)
 
         # need different dataset type for GUI/CMD mode.
         if opt.gui:
