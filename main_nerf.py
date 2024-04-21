@@ -150,6 +150,7 @@ if __name__ == '__main__':
     parser.add_argument('--eval_stereo_views', type=int, default=0)
     parser.add_argument('--pp_poses_sphere', type=int, default=1, help="preprocess poses to look at center of sphere")
     parser.add_argument('--render_mode', type=int, default=0, help="Rendering only")
+    parser.add_argument('--window_size', type=int, default=30, help="Window size for windowing approach")
 
     ### network backbone options
     parser.add_argument('--fp16', action='store_true', help="use amp mixed precision training")

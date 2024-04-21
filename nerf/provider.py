@@ -1146,6 +1146,7 @@ class EventNeRFDataset(NGPDataset):
         self.trans_hf = np.stack([p["pose_c2w"][:3, 3] for p in self.poses_hf]) 
         self.rot_interpolator = Slerp(self.tss_poses_hf_ns, R.from_matrix(self.rots_hf)) 
         self.trans_interpolator = interp1d(x=self.tss_poses_hf_ns, y=self.trans_hf, axis=0, kind="cubic", bounds_error=True)
+        self.window_size = opt.window_size
 
         # [todo]: precompute once
         print(f"Starting to compute {len(evs_batches_ns_tmp)} evs_dict_xy")
@@ -1413,7 +1414,6 @@ class EventNeRFDataset(NGPDataset):
 
             # Window sampling strategy using window size = 60ms
             # START: comment this block to disable window based logic
-            window_size = 60
             for i in range(len(eidx_end)):
                 start_idx = eidx[i]
                 start_ev = self.events[fidx][start_idx]
@@ -1423,7 +1423,7 @@ class EventNeRFDataset(NGPDataset):
                 while (end_idx < max_idx
                        and start_ev[0] == self.events[fidx][end_idx][0]
                        and start_ev[1] == self.events[fidx][end_idx][1]
-                       and (self.events[fidx][end_idx][2] - start_ev[2]).item() / 10e6 <= window_size):
+                       and (self.events[fidx][end_idx][2] - start_ev[2]).item() / 10e6 <= self.window_size):
                     end_idx += 1
 
                 eidx_end[i] = end_idx - 1
