@@ -1409,13 +1409,15 @@ class EventNeRFDataset(NGPDataset):
             eidx = event_ids + (np.random.rand(num_evs_xy.shape[0]) * num_evs_xy - 1).astype(int)
             eidx = np.random.choice(eidx, size=self.batch_size_evs, replace=self.batch_size_evs>len(eidx))
 
-            # DEFAULT sampling strategy
-            eidx_end = eidx + 1 # take direct successor event by default
-
-            # Window sampling strategy using window size = 60ms
-            # START: comment this block to disable window based logic
-            for i in range(len(eidx_end)):
-                start_idx = eidx[i]
+            if self.window_size == 0:
+                # DEFAULT sampling strategy
+                print("Using UNIFORM SAMPLING STRATEGY")
+                eidx_end = eidx + 1  # take direct successor event by default
+            else:
+                # Window based sampling strategy
+                print("Using WINDOW SAMPLING STRATEGY, window_size = ", self.window_size)
+                for i in range(len(eidx_end)):
+                    start_idx = eidx[i]
                 start_ev = self.events[fidx][start_idx]
                 max_idx = len(self.events[fidx])
                 end_idx = eidx_end[i]
@@ -1427,8 +1429,6 @@ class EventNeRFDataset(NGPDataset):
                     end_idx += 1
 
                 eidx_end[i] = end_idx - 1
-            # END
-            print("SUCESSSSSSSSS")
 
             pols = self.events[fidx][eidx_end, 3].unsqueeze(0)
 
