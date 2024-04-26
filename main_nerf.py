@@ -1,6 +1,7 @@
 from re import A
 import torch
 import configargparse
+import csv
 
 from nerf.provider import NeRFDataset, EventNeRFDataset
 # from nerf.gui import NeRFGUI
@@ -141,7 +142,7 @@ if __name__ == '__main__':
     parser.add_argument('--iters', type=int, default=1000000, help="training iters")
     parser.add_argument('--ckpt', type=str, default='latest')
     parser.add_argument('--lr', type=float, default=1e-3, help="initial learning rate") 
-    parser.add_argument('--eval_interval', type=int, default=10)
+    parser.add_argument('--eval_interval', type=int, default=1)
     parser.add_argument('--num_rays', type=int, default=4096, help="num rays sampled per image for each training step")
     parser.add_argument('--cuda_ray', action='store_true', help="use CUDA raymarching instead of pytorch")
     parser.add_argument('--num_steps', type=int, default=512, help="num steps sampled per ray (only valid when not using --cuda_ray)")
@@ -150,7 +151,7 @@ if __name__ == '__main__':
     parser.add_argument('--eval_stereo_views', type=int, default=0)
     parser.add_argument('--pp_poses_sphere', type=int, default=1, help="preprocess poses to look at center of sphere")
     parser.add_argument('--render_mode', type=int, default=0, help="Rendering only")
-    parser.add_argument('--window_size', type=int, default=30, help="Window size for windowing approach")
+    parser.add_argument('--window_size', type=int, default=0, help="Window size for windowing approach")
 
     ### network backbone options
     parser.add_argument('--fp16', action='store_true', help="use amp mixed precision training")
@@ -263,4 +264,10 @@ if __name__ == '__main__':
 
     end_time = timeit.default_timer()
     execution_time = end_time - start_time
-    print("Execution time:", execution_time, "seconds")
+
+    csv_file = 'execution_times.csv'
+
+    # Append data to CSV file
+    with open(csv_file, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([opt.expname, execution_time])
