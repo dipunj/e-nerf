@@ -1306,6 +1306,7 @@ class Trainer(object):
             self.ema.restore()
 
         self.log(f"++> Evaluate epoch {self.epoch} Finished.")
+        return loss_val
 
     def save_checkpoint(self, name=None, full=False, best=False, remove_old=True):
 

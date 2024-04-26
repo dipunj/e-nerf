@@ -1,4 +1,5 @@
 from re import A
+import math
 import torch
 import configargparse
 
@@ -151,6 +152,7 @@ if __name__ == '__main__':
     parser.add_argument('--pp_poses_sphere', type=int, default=1, help="preprocess poses to look at center of sphere")
     parser.add_argument('--render_mode', type=int, default=0, help="Rendering only")
     parser.add_argument('--window_size', type=int, default=30, help="Window size for windowing approach")
+    parser.add_argument('--patience', type=float, default=math.inf, help="Patience for early stopping")
 
     ### network backbone options
     parser.add_argument('--fp16', action='store_true', help="use amp mixed precision training")
@@ -235,7 +237,7 @@ if __name__ == '__main__':
                           scheduler_update_every_step=True,
                           metrics=[PSNRMeter(opt, select_frames)],
                           use_checkpoint=opt.ckpt,
-                          patience=5)
+                          patience=opt.patience)
 
         # need different dataset type for GUI/CMD mode.
         if opt.gui:
